@@ -1,136 +1,145 @@
-I chose the Apache Commons SCXML library because it makes working with state machines much easier.
-The library is widely available, regularly updated, and supports a standard format for defining state machines, 
-so you don't have to create everything from scratch. It handles state changes and events efficiently and runs smoothly,
-even in complex situations. Now, I will explain the code of this part.
+# Software Project
 
-org.apache.commons.scxml2.SCXMLExecutor: This class manages the overall state of the machine,
-including the execution of the state machine, handling state transitions, and processing events.
+## Overview
 
-org.apache.commons.scxml2.env.SimpleDispatcher: It handles the delivery of 
-events to the appropriate state or transition.
+`TrainStateMachineWithInput` is a Java-based command-line application that executes a state machine defined in an SCXML (State Chart XML) file. Users can trigger state transitions by inputting events via the command line. This tool leverages the Apache Commons SCXML library to manage state transitions, providing a flexible way to model and execute workflows.
 
-org.apache.commons.scxml2.env.jexl.JexlEvaluator: It interprets and processes the 
-conditions and actions defined in the state machine.
+## Key Features
 
-org.apache.commons.scxml2.io.SCXMLReader: It converts the SCXML document into a 
-format that the SCXMLExecutor can execute.
+- **SCXML Execution**: Load and run a state machine defined in an SCXML file.
+- **User Interaction**: Users can interact with the state machine by inputting events to trigger transitions.
+- **Custom Events**: Supports additional events such as `leaving` and `approaching` alongside predefined ones.
+- **Logging**: Logs the execution process and state transitions for easier debugging.
 
-org.apache.commons.scxml2.model.SCXML: It contains the entire structure of the 
-state machine, including states, transitions, and events.
+## Prerequisites
 
-org.apache.commons.scxml2.env.SimpleErrorReporter: It logs errors that occur when the state machine is running.
+Before running the project, ensure you have the following installed:
 
-org.apache.commons.scxml2.TriggerEvent: It carries information about the event, 
-which the state machine uses to determine the next state.
+- Java Development Kit (JDK) 8 or later (Java 21 is recommended)
+- Gradle (or use the provided Gradle wrapper)
+- Internet connection for downloading dependencies
 
-org.apache.commons.scxml2.model.EnterableState, model.TransitionalState, model.OnEntry: It includes information 
-about the state's entry and the logic for moving from one state to another based on events or conditions (using Onentery in state machines).
+## Setup and Installation
 
-org.apache.commons.scxml2.model.Raise, model. Action: these are about the rise in state machines.
-Actions might include raising events, running scripts, or performing other tasks when a state is entered or exited.
+### 1. Clone the Repository
 
-The below line creates a Logger instance for the TrainStateMachineWithInput class, used to log messages like info, warnings, and errors
-private static final Logger logger = Logger.getLogger(TrainStateMachineWithInput.class.getName());
+Clone the project from the following GitHub repository:
 
-executor manages and runs the SCXML state machine.
+```bash
+git clone https://github.com/saargollli/SarehMaleki_Train.git
+cd SarehMaleki_Train
+```
 
+### 2. Build the Project
 
-Main function: This function reads the path of the SCXML file from input, sets the logger to capture 
-high-level information, such as warnings, and creates a new instance of TrainStateMachineWithInput. 
-It then calls the Run function with the SCXML_FILE_PATH argument, which is the path to the SCXML file.
+If Gradle is installed on your system, you can build the project using:
 
-public static void main(String[] args) {
-    Scanner scanner = new Scanner(System.in);
-    System.out.println("give your path please: (example: /home/sareh/Documents/task2.scxml)");
-    String SCXML_FILE_PATH =scanner.nextLine();
-    Logger.getLogger("org.apache.commons.scxml2").setLevel(Level.WARNING);
-    TrainStateMachineWithInput trainStateMachine = new TrainStateMachineWithInput();
-    trainStateMachine.Run(SCXML_FILE_PATH);
-}
+```bash
+gradle build
+```
 
-Run function: This function initializes the state machine with the given SCXML_FILE_PATH and reads 
-user input in a loop using a Scanner. It processes events to trigger state transitions until the 
-state machine reaches a final state or the user types "exit" to stop. If the user inputs an invalid 
-event, it logs a warning; otherwise, it triggers the event and displays the current state details.
+Alternatively, you can use the provided Gradle wrapper:
 
-public void Run(String SCXML_FILE_PATH) {
-    try (Scanner scanner = new Scanner(System.in)) {
-        initializeStateMachine(SCXML_FILE_PATH);
-        while (!executor.getStatus().isFinal()) {
-            String event = promptForEvent(scanner);
-            if (event.equalsIgnoreCase("exit")) {
-                logger.info("Exiting the state machine...");
-                break;
-            }
-            if (isValidEvent(event)) {
-                triggerEventAndPrintDetailedState(event);
-            } else {
-                logger.warning("Invalid event. Please enter 'Seen', 'NotSeen', 'leaving', or 'exit'.");
-            }
-        }
-    } catch (Exception e) {
-        logger.log(Level.SEVERE, "An error occurred while running the state machine.", e);
-    } finally {
-        shutdownStateMachine();
+```bash
+./gradlew build
+```
+
+### 3. Running the Application
+
+You can run the application directly through Gradle or by executing the generated JAR file.
+
+#### Option 1: Run with Gradle
+
+```bash
+gradle run
+```
+
+#### Option 2: Run the Fat JAR
+
+After building the project, a fat JAR (with all dependencies bundled) will be created in the `build/libs/` directory. You can execute it using:
+
+```bash
+java -jar build/libs/TrainStateMachineWithInput2.jar
+```
+
+### 4. Provide the SCXML File Path
+
+Upon running the application, you will be prompted to provide the path to your SCXML file. For example:
+
+```plaintext
+give your path please: (example: /home/user/task2.scxml)
+```
+
+### 5. Enter Events
+
+After providing the SCXML file, the application will prompt you to enter events. You can input one of the supported events:
+
+- `Seen`
+- `NotSeen`
+- `leaving`
+- `approaching`
+- `exit` (to terminate the program)
+
+### Example Execution
+
+```plaintext
+give your path please: (example: /home/user/task2.scxml)
+/home/user/train_state_machine.scxml
+Enter an event (Seen, NotSeen, leaving, approaching) or 'exit' to quit:
+Seen
+```
+
+## Configuration and Customization
+
+### Build Script (Gradle)
+
+This project uses Gradle as the build tool, and the `build.gradle` file is pre-configured with the necessary plugins and dependencies.
+
+#### Key Plugins
+
+- **Java Plugin**: Supports compiling Java code and managing the project lifecycle.
+- **Application Plugin**: Allows running the application from the command line.
+- **Shadow Plugin**: Bundles all dependencies into a single JAR for easier distribution.
+
+#### Dependencies
+
+The following key dependencies are included in the `build.gradle` file:
+
+- `de.dfki.cos.basys.common:scxml`: For SCXML state machine execution.
+- `commons-logging`: For logging.
+- `org.apache.commons:commons-jexl3`: For expression evaluation.
+- `commons-beanutils`: For JavaBeans manipulation.
+- `JUnit 5`: For testing.
+
+#### Toolchain
+
+The project is set to use Java 21. If you're using a different version, update the toolchain settings in `build.gradle`.
+
+```groovy
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
+```
 
-The below line of Run function calls the initializeStateMachine function:
-initializeStateMachine(SCXML_FILE_PATH);
+### Logging
 
-Until the state machine reaches a final state, the promptForEvent function is called to read events from input:
-String event = promptForEvent(scanner);
+The application uses Java's built-in logging framework. By default, it only shows warning messages or more severe logs from the SCXML library. You can adjust the logging level by modifying the following line in the `main` method:
 
-The below code calls the isValidEvent function, which checks the validation of the input:
-if (isValidEvent(event)) {
-    triggerEventAndPrintDetailedState(event);
+```java
+Logger.getLogger("org.apache.commons.scxml2").setLevel(Level.WARNING);
+```
+
+### Shadow JAR Configuration
+
+The Shadow plugin is configured to package all dependencies into a fat JAR. The output file is named `TrainStateMachineWithInput2.jar`, and it is located in the `build/libs/` directory.
+
+```groovy
+tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    archiveBaseName.set("TrainStateMachineWithInput2")
+    archiveClassifier.set("")
+    archiveVersion.set("")
+    mergeServiceFiles()
+    zip64 = true
 }
-
-The  isValidEvent function works as below:
-private boolean isValidEvent(String event) {
-    return event.equals("Seen") || event.equals("NotSeen") || event.equals("leaving") || event.equals("approaching");
-}
-
-If the input is valid, the triggerEventAndPrintDetailedState method will be invoked. This method logs the event being triggered, processes the event within the state machine using the executor:
-private void triggerEventAndPrintDetailedState(String event) throws Exception {
-    logger.info("Triggering event: " + event);
-    executor.triggerEvent(new TriggerEvent(event, TriggerEvent.SIGNAL_EVENT));
-    System.out.println();
-}
-
-The code below only functions when the state machine reaches a final state. I have written it to enhance my code so that it can handle all types of state machines, not just those without a final state.
-finally {
-    //If there was a final state
-    shutdownStateMachine();
-}
-
-initializeStateMachine function: This function sets up the state machine by reading the SCXML file specified by 
-SCXML_FILE_PATH and creating a new SCXMLExecutor instance with necessary components. It parses the SCXML into an SCXML object, 
-assigns it to the executor, and starts execution (.executor.go();). If any errors occur during this process, they are logged as SEVER.
-
-private void initializeStateMachine(String SCXML_FILE_PATH) throws Exception {
-    try (InputStream scxmlInputStream = new FileInputStream(new File(SCXML_FILE_PATH))) {
-        SCXML scxml = SCXMLReader.read(scxmlInputStream);
-        executor = new SCXMLExecutor(new JexlEvaluator(), new SimpleDispatcher(), new SimpleErrorReporter());
-        executor.setStateMachine(scxml);
-        executor.go();
-        logger.info("State machine initialized successfully.");
-    } catch (Exception e) {
-        logger.log(Level.SEVERE, "Failed to initialize state machine.", e);
-        throw e;
-    }
-}
-
-promptForEvent function: This function read the input provided by user from, there are three types of inputs:
--Seen: for event seen
--NotSeen: when the seen event don’t occur
--leaving: I added an extra feature that allows the user to send a specific leaving event, different 
-from the entry event, to the leaving state in the controller state machine.
--approaching: I added an extra feature that allows the user to send a specific approaching event, 
-different from the entry event, to the approach state in the controller state machine.
-private String promptForEvent(Scanner scanner) {
-    System.out.println("Enter an event (Seen, NotSeen, leaving, approaching) or 'exit' to quit:");
-    return scanner.nextLine();
-}
-
-_Applicability: This code is suitable for all state machines; you only need to update the valid events in the isValidEvent function to fit your specific requirements._
