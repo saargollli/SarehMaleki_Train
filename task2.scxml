@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml name="Train" version="1.0" xmlns="http://www.w3.org/2005/07/scxml">
+	<parallel id="Parallel_Train">
+		<state id="Controller_State_Machine">
+			<state id="away">
+				<transition event="Seen" target="approach"/>
+			</state>
+			<state id="left">
+				<transition event="NotSeen" target="away"/>
+			</state>
+			<state id="leaving">
+				<onentry>
+					<raise event="leaving"/>
+				</onentry>
+				<transition event="Seen" target="left"/>
+			</state>
+			<state id="present">
+				<transition event="NotSeen" target="leaving"/>
+			</state>
+			<state id="close">
+				<transition event="Seen" target="present"/>
+			</state>
+			<state id="approach">
+				<onentry>
+					<raise event="approaching"/>
+				</onentry>
+				<transition event="NotSeen" target="close"/>
+			</state>
+		</state>
+		<state id="Gate_State_Machine">
+			<state id="Up">
+				<transition event="approaching" target="Down"/>
+			</state>
+			<state id="Down">
+				<transition event="leaving" target="Up"/>
+			</state>
+		</state>
+		<state id="LightStateMachine">
+			<state id="Off">
+				<transition event="approaching" target="On"/>
+			</state>
+			<state id="On">
+				<transition event="leaving" target="Off"/>
+			</state>
+		</state>
+	</parallel>
+</scxml>
